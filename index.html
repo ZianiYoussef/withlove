@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Do You Love Me?</title>
+    <!-- Importing Google Fonts for that "Aesthetic" look -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffe6e9; /* Soft Pink Background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden; /* Prevents scrollbars when hearts appear */
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .container {
+            text-align: center;
+            position: relative;
+            z-index: 10; /* Keeps content above falling hearts */
+        }
+
+        /* The Big Heart */
+        .big-heart {
+            font-size: 100px;
+            color: #ff4d6d;
+            animation: heartbeat 1.5s infinite;
+            margin-bottom: 20px;
+            drop-shadow: 0 5px 15px rgba(255, 77, 109, 0.4);
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            color: #d6335c;
+            font-size: 3rem;
+            margin: 10px 0 30px;
+            text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.5);
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            position: relative; /* Context for the No button */
+            height: 60px; /* Reserve space */
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+
+        #yesBtn {
+            background-color: #ff4d6d;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
+        }
+
+        #yesBtn:hover {
+            transform: scale(1.1);
+            background-color: #ff3355;
+        }
+
+        #noBtn {
+            background-color: white;
+            color: #ff4d6d;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: absolute; /* Allows it to move freely */
+            /* Initial position relative to the container center */
+            left: 50%;
+            transform: translateX(60px); /* Offset to the right */
+        }
+
+        /* Animation for the Big Heart */
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Floating Hearts Animation Class (for JS) */
+        .floating-heart {
+            position: absolute;
+            color: #ff4d6d;
+            font-size: 20px;
+            animation: floatUp 4s linear forwards;
+            opacity: 0;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* Message after clicking Yes */
+        .success-message {
+            display: none;
+            font-family: 'Pacifico', cursive;
+            color: #d6335c;
+            font-size: 4rem;
+            animation: popIn 0.5s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="mainContainer">
+    <div class="big-heart">❤️</div>
+    <h1>Do you love me?</h1>
+    <div class="buttons">
+        <!-- Yes Button stays static, we adjust margin to center it visually relative to No -->
+        <button id="yesBtn" style="transform: translateX(-60px);">Yes</button>
+        <button id="noBtn">No</button>
+    </div>
+</div>
+
+<!-- Hidden Success Message -->
+<div class="success-message" id="successMsg">I knew it! ❤️</div>
+
+<script>
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const container = document.getElementById('mainContainer');
+    const successMsg = document.getElementById('successMsg');
+
+    // Logic to make the "No" button run away [web:6][web:11]
+    noBtn.addEventListener('mouseover', () => {
+        // Get window dimensions
+        const containerRect = document.body.getBoundingClientRect();
+        const btnRect = noBtn.getBoundingClientRect();
+
+        // Calculate random position within the screen
+        // We subtract the button size to ensure it doesn't go off-screen
+        const maxX = containerRect.width - btnRect.width;
+        const maxY = containerRect.height - btnRect.height;
+
+        const randomX = Math.floor(Math.random() * maxX);
+        const randomY = Math.floor(Math.random() * maxY);
+
+        // Apply new position
+        noBtn.style.position = 'fixed'; // Switch to fixed to move relative to screen
+        noBtn.style.left = randomX + 'px';
+        noBtn.style.top = randomY + 'px';
+        noBtn.style.transform = 'none'; // Remove the initial centering transform
+    });
+
+    // Logic for clicking "Yes" [web:7][web:13]
+    yesBtn.addEventListener('click', () => {
+        // Hide the question and buttons
+        container.style.display = 'none';
+        // Show success message
+        successMsg.style.display = 'block';
+
+        // Start creating hearts
+        startHeartRain();
+    });
+
+    function startHeartRain() {
+        // Create a heart every 50ms
+        setInterval(() => {
+            const heart = document.createElement('div');
+            heart.classList.add('floating-heart');
+            heart.innerHTML = '❤️';
+
+            // Randomize position and size
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 2 + 3 + 's'; // 3-5 seconds
+            heart.style.fontSize = Math.random() * 20 + 20 + 'px'; // 20-40px size
+
+            document.body.appendChild(heart);
+
+            // Remove heart after animation to keep DOM clean
+            setTimeout(() => {
+                heart.remove();
+            }, 5000);
+        }, 100);
+    }
+</script>
+</body>
+</html>
